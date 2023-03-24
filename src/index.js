@@ -15,9 +15,11 @@ function onSearchCountry(evt) {
     evt.preventDefault();
     const searchValue = input.value.trim();
     console.log(searchValue)
-    fetchCountries(searchValue)
-    .then(renderCountry)
-    .catch(onFetchError);
+    if (searchValue != '') {
+        fetchCountries(searchValue)
+        .then(renderCountry)
+        .catch(onFetchError);
+    }
 };
 
 function createCountryList(countries) {
