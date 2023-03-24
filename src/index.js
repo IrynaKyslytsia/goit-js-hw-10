@@ -1,6 +1,7 @@
 import './css/styles.css';
 import { fetchCountries } from './fetchCountries';
 import debounce from "lodash.debounce";
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 const DEBOUNCE_DELAY = 300;
 
@@ -15,11 +16,11 @@ function onSearchCountry(evt) {
     const searchValue = input.value.trim();
     console.log(searchValue)
     fetchCountries(searchValue)
-    .then(checkInput)
-    .catch(error => console.log(error));
-}
+    .then(renderCountry)
+    .catch(onFetchError);
+};
 
-function renderCountryList(countries) {
+function createCountryList(countries) {
     return countries.map(({name, flags}) => {
         return `
         <li class="card-item">
@@ -28,9 +29,9 @@ function renderCountryList(countries) {
        </li>
        `
     }).join('')
-}
+};
 
-function renderCountryInfo(countries) {
+function createCountryInfo(countries) {
     return countries.map(({name, flags, capital, population, languages}) => {
         return `
         <div class="card-heading">
@@ -44,18 +45,20 @@ function renderCountryInfo(countries) {
         </div>
         `
     }).join('')
-}
+};
 
-function checkInput(countries) {
+function renderCountry(countries) {
+        countryList.innerHTML = '';
+        countryInfo.innerHTML = '';
     if (countries.length > 10) {
-        window.alert("Too many matches found. Please enter a more specific name.")
+        Notify.info("Too many matches found. Please enter a more specific name.")
     } else if (countries.length >= 2 && countries.length <= 10) {
-        countryList.innerHTML = '';
-        countryInfo.innerHTML = '';
-        countryList.insertAdjacentHTML('beforeend', renderCountryList(countries))
+        countryList.insertAdjacentHTML('beforeend', createCountryList(countries))
     } else if (countries.length === 1) {
-        countryList.innerHTML = '';
-        countryInfo.innerHTML = '';
-        countryInfo.insertAdjacentHTML('beforeend', renderCountryInfo(countries))
-    } 
+        countryInfo.insertAdjacentHTML('beforeend', createCountryInfo(countries))
+    }    
+};
+
+function onFetchError() {
+    Notify.failure("Oops, there is no country with that name");
 }
